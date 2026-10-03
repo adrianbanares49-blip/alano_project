@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
 
-    //header
+    <!-- header-->
     @include('partials.header')
 
     <meta charset="utf-8">
