@@ -25,9 +25,12 @@
             display: flex; flex-direction: column;
             height: 100vh;
             background:
-                radial-gradient(ellipse at 0% 0%, rgba(60, 90, 200, .35), transparent 45%),
-                radial-gradient(ellipse at 100% 0%, rgba(255, 64, 140, .35), transparent 45%),
-                #f6f4fb;
+                radial-gradient(ellipse at 0% 0%,     #4355b5 0%, transparent 55%),
+                radial-gradient(ellipse at 100% 0%,   #f6437f 0%, transparent 55%),
+                radial-gradient(ellipse at 0% 100%,   #fcc41e 0%, transparent 55%),
+                radial-gradient(ellipse at 100% 100%, #30bdd4 0%, transparent 55%),
+                #faeee0;
+            background-attachment: fixed;
         }
         button { font-family: inherit; cursor: pointer; }
         button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
@@ -77,7 +80,7 @@
         /* ---------- Workspace ---------- */
         .workspace {
             flex: 1; min-height: 0;
-            display: grid; grid-template-columns: 250px 1fr 230px; gap: 12px;
+            display: grid; grid-template-columns: 300px 1fr 230px; gap: 12px;
             padding: 10px 14px;
         }
         .panel {
@@ -121,7 +124,7 @@
             background-size: 14px 14px, 22px 22px;
             background-position: 0 0, 7px 7px;
         }
-        .stage { position: relative; width: 760px; height: 520px; transform-origin: 0 0; }
+        .stage { position: relative; width: 1140px; height: 780px; transform-origin: 0 0; }
         .board-title {
         font-family: 'Caveat', cursive; font-size: 30px; color: #4a3a2a;
         white-space: nowrap; padding: 2px 8px;
@@ -133,11 +136,22 @@
             position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 50%;
             border: 0; background: var(--maroon); color: #fff; font-size: 12px; line-height: 20px; display: none;
         }
-        .item:hover .del, .item:focus-within .del { display: block; }
+        .item:hover .del, .item:focus-within .del { 
+            display: block; 
+        }
         .item .pic {
         position: absolute; top: -8px; left: -8px; width: 24px; height: 24px;
         border-radius: 50%; border: 0; background: #fff; font-size: 12px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, .3); display: none;
+        }
+        .item .rs {
+            position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px;
+            border-radius: 50%; border: 0; background: var(--pink);
+            box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: nwse-resize;
+            display: none; touch-action: none;
+        }
+        .item:hover .rs, .item:focus-within .rs { 
+            display: block; 
         }
         .item:hover .pic, .item:focus-within .pic { display: block; }
         .polaroid {
@@ -155,7 +169,15 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, .2); color: #3a2d22; display: grid; place-items: center;
         }
         .note span { outline: none; }
-        .emoji-item { font-size: 44px; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
+        .emoji-item { 
+            font-size: 44px; 
+            filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); 
+        }
+        .sticker-img { 
+            display: block; height: auto; 
+            pointer-events: none; 
+            filter: drop-shadow(0 3px 3px rgba(0,0,0,.2)); 
+        }
 
         .toolbar {
             display: flex; align-items: center; gap: 12px; padding: 8px 14px;
@@ -208,6 +230,10 @@
             .layout-split { max-height: 260px; }
             .subhead { flex-wrap: wrap; }
         }
+
+        /* fs logo */
+        .fs-logo { height: 64px; width: auto; display: block; }
+        .promo .promo-logo { height: auto; width: 150px; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -220,7 +246,7 @@
     </header>
 
     <section class="subhead">
-        <div class="logo">Future<b><i>S</i>TARTER</b></div>
+        <img src="fs-logo-nbg.png" alt="Future Starter" class="fs-logo">
         <div class="divider"></div>
         <div>
             <h1>VISION BOARD</h1>
@@ -228,7 +254,7 @@
         </div>
         <div class="actions">
             <button class="btn" type="button" id="howBtn">How It Works</button>
-            <button class="btn" type="button" id="saveBtn">Save</button>
+            
             <button class="btn primary" type="button" id="downloadBtn">Download</button>
         </div>
     </section>
@@ -278,7 +304,7 @@
             <div class="promo">
                 <strong>You dream it.<br>You plan it.<br>You Future Starter it.</strong>
                 <span>Take the first step today for the future you deserve.</span>
-                <div class="logo">Future<b>STARTER</b></div>
+                <img src="fs-logo-nbg.png" alt="Future Starter" class="fs-logo promo-logo">
             </div>
         </aside>
     </main>
@@ -292,8 +318,11 @@
 <script>
 
 (function () {
+    var STICKER_DIR = 'images/stickers/';
+
     var STICKERS = [
         { id: 'note',    label: 'Add Note',          icon: '\uD83D\uDCDD', cat: 'All', kind: 'note' },
+        { id: 'polaroid', label: 'Add Polaroid', icon: '\uD83D\uDCF8', cat: 'All', kind: 'polaroid' },
         { id: 'career',  label: 'Career Growth',     icon: '\uD83C\uDFC6', cat: 'Career' },
         { id: 'free',    label: 'Financial Freedom', icon: '\uD83D\uDCB5', cat: 'Wealth' },
         { id: 'biz',     label: 'Business Success',  icon: '\uD83D\uDCBC', cat: 'Business' },
@@ -305,19 +334,50 @@
         { id: 'edu',     label: 'Education',         icon: '\uD83C\uDF93', cat: 'Education' },
         { id: 'heart',   label: 'Health & Wellness', icon: '\u2764\uFE0F', cat: 'Health' },
         { id: 'family',  label: 'Family',            icon: '\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67', cat: 'Family' },
-        { id: 'give',    label: 'Giving Back',       icon: '\uD83E\uDD32', cat: 'Giving' }
+        { id: 'give',    label: 'Giving Back',       icon: '\uD83E\uDD32', cat: 'Giving' },
+        { id: 'star',     label: 'Star',        icon: '\u2B50',             cat: 'Others' },
+        { id: 'sparkle',  label: 'Sparkles',    icon: '\u2728',             cat: 'Others' },
+        { id: 'rainbow',  label: 'Rainbow',     icon: '\uD83C\uDF08',       cat: 'Others' },
+        { id: 'butterfly',label: 'Butterfly',   icon: '\uD83E\uDD8B',       cat: 'Others' },
+        { id: 'flower',   label: 'Flower',      icon: '\uD83C\uDF38',       cat: 'Others' },
+        { id: 'sun',      label: 'Sunshine',    icon: '\u2600\uFE0F',       cat: 'Others' },
+        { id: 'loveheart',label: 'Sparkle Heart', icon: '\uD83D\uDC96',     cat: 'Others' },
+        { id: 'balloon',  label: 'Balloon',     icon: '\uD83C\uDF88',       cat: 'Others' },
+        { id: 'crown',    label: 'Crown',       icon: '\uD83D\uDC51',       cat: 'Others' },
+        { id: 'palm',     label: 'Palm Tree',   icon: '\uD83C\uDF34',       cat: 'Others' },
+        { id: 'rocket',   label: 'Rocket',      icon: '\uD83D\uDE80',       cat: 'Others' },
+        { id: 'pin',      label: 'Pushpin',     icon: '\uD83D\uDCCC',       cat: 'Others' },
+        { id: 'moon',     label: 'Moon',        icon: '\uD83C\uDF19',       cat: 'Others' },
+        { id: 'gem',      label: 'Gem',         icon: '\uD83D\uDC8E',       cat: 'Others' },
+        { id: 'party',    label: 'Confetti',    icon: '\uD83C\uDF89',       cat: 'Others' },
+        { id: 'clover',   label: 'Lucky Clover',icon: '\uD83C\uDF40',       cat: 'Others' },
+        { id: 'target',   label: 'Target',      icon: '\uD83C\uDFAF',       cat: 'Others' },
+        { id: 'rope', label: 'Hanging Rope', icon: '\uD83E\uDEA2', cat: 'Others', art: 'rope' },
+        { id: 'bags',     label: 'Shopping',      src: STICKER_DIR + 'bags_nbg.png',        cat: 'Others' },
+        { id: 'grad',     label: 'Graduation',    src: STICKER_DIR + 'cap_dip-nbg.png',     cat: 'Others' },
+        { id: 'carkey',   label: 'Car Keys',      src: STICKER_DIR + 'car_key-nbg.png',     cat: 'Others' },
+        { id: 'homekey',  label: 'Home Keys',     src: STICKER_DIR + 'home_key-nbg.png',    cat: 'Others' },
+        { id: 'moneyfest',label: 'Moneyfesting',  src: STICKER_DIR + 'moneyfesting-nbg.png',cat: 'Others' },
+        { id: 'passport', label: 'Passport',      src: STICKER_DIR + 'passport-nbg.png',    cat: 'Others' }
     ];
-    var CATS = ['All', 'Wealth', 'Career', 'Business', 'Home', 'Travel', 'Education', 'Health', 'Lifestyle', 'Family', 'Giving'];
+
+    var CATS = ['All', 'Wealth', 'Career', 'Business', 'Home', 'Travel', 'Education', 'Health', 'Lifestyle', 'Family', 'Giving', 'Others'];
     var BGS = ['#e9c9a0', '#f3e7d3', '#f9d5e5', '#cfe3f7', '#d7ecd9', '#2f3a6b'];
     var NOTE_COLORS = ['#fff1a8', '#ffd1e3', '#cfe8ff', '#d6f5d6', '#e6d5ff'];
     var PHOTO_BG = ['linear-gradient(135deg,#7fb8e6,#e8d9b0)', 'linear-gradient(135deg,#2f4a7a,#f0a35e)',
                     'linear-gradient(135deg,#8fd3c9,#f6e7a8)', 'linear-gradient(135deg,#f6b6c8,#c9a6e8)'];
-
+    var ART = {
+        rope: '<svg viewBox="0 0 300 60" style="width:100%;display:block;overflow:visible">' +
+            '<path d="M6 8 Q150 72 294 8" fill="none" stroke="#8b6b4a" stroke-width="4" stroke-linecap="round"/>' +
+            '<path d="M6 8 Q150 72 294 8" fill="none" stroke="#d9bd94" stroke-width="4" stroke-dasharray="3 5"/>' +
+            '<circle cx="6" cy="8" r="5" fill="#5a4630"/><circle cx="294" cy="8" r="5" fill="#5a4630"/></svg>'
+    };
     var board = document.getElementById('board');
     var stage = document.getElementById('stage');
     var noteColor = NOTE_COLORS[0];
     var scale = 1;
     var items = [];
+    
     var history = [];
     var future = [];
     var uid = 0;
@@ -334,7 +394,8 @@
             commit();
             pickTarget.img = dataUrl;
             pickTarget = null;
-            render(); updateUI();
+            render(); 
+            updateUI();
         });
         picker.value = '';
     });
@@ -374,6 +435,27 @@
     }
     function restore(json) { items = JSON.parse(json); render(); updateUI(); }
 
+    function applySize(el, it) {
+        var w = it.w || (it.t === 'note' ? 120 : 150);
+        if (it.t === 'photo') {
+            var p = el.querySelector('.polaroid');
+            p.style.width = w + 'px';
+            var ph = p.querySelector('.photo');
+            ph.style.height = Math.round((w - 16) * 0.75) + 'px';
+            ph.style.fontSize = Math.round(w * 0.29) + 'px';
+            p.querySelector('.cap').style.fontSize = Math.round(17 * w / 150) + 'px';
+        } else if (it.t === 'note') {
+            var n = el.querySelector('.note');
+            n.style.width = w + 'px';
+            n.style.minHeight = Math.round(w * 0.67) + 'px';
+            n.style.fontSize = Math.round(19 * w / 120) + 'px';
+        } else if (it.t === 'art') {
+            el.querySelector('.art').style.width = w + 'px';
+        } else if (it.t === 'img') {
+            el.querySelector('.sticker-img').style.width = w + 'px';
+        }
+        
+    }
     /* ---------- Render ---------- */
     function render() {
         Array.prototype.slice.call(stage.querySelectorAll('.item')).forEach(function (n) { n.remove(); });
@@ -397,9 +479,41 @@
                 el.innerHTML = '<div class="note" style="background:' + it.color + '"><span contenteditable="true" spellcheck="false">' + esc(it.text) + '</span></div>';
             }  else if (it.t === 'title') {
                 el.innerHTML = '<div class="board-title"><span contenteditable="true" spellcheck="false">' + esc(it.text) + '</span></div>';
-            } else {
+            }  else if (it.t === 'art') {
+                el.innerHTML = '<div class="art">' + ART[it.art] + '</div>';
+            }
+            else if (it.t === 'img') {
+                el.innerHTML = '<img class="sticker-img" src="' + esc(it.src) + '" alt="" draggable="false">';
+            }
+            else {
                 el.innerHTML = '<div class="emoji-item">' + it.icon + '</div>';
             }
+            applySize(el, it);   
+
+            if (it.t === 'photo' || it.t === 'note' || it.t === 'art' || it.t === 'img') {
+                var rs = document.createElement('button');
+                rs.className = 'rs'; rs.type = 'button'; rs.title = 'Drag to resize';
+                rs.setAttribute('aria-label', 'Resize');
+                rs.addEventListener('pointerdown', function (e) {
+                    e.stopPropagation(); e.preventDefault();
+                    rs.setPointerCapture(e.pointerId);
+                    var startX = e.clientX, startW = it.w || (it.t === 'note' ? 120 : 150);
+                    var before = snapshot(), changed = false;
+                    function move(ev) {
+                        var w = Math.max(70, Math.min(500, Math.round(startW + (ev.clientX - startX) / scale)));
+                        if (w !== it.w) { it.w = w; changed = true; applySize(el, it); }
+                    }
+                    function up() {
+                        rs.removeEventListener('pointermove', move);
+                        rs.removeEventListener('pointerup', up);
+                        if (changed) { history.push(before); if (history.length > 50) history.shift(); future = []; updateUI(); }
+                    }
+                    rs.addEventListener('pointermove', move);
+                    rs.addEventListener('pointerup', up);
+                });
+                el.appendChild(rs);
+            }
+
             var del = document.createElement('button');
             del.className = 'del'; del.type = 'button'; del.setAttribute('aria-label', 'Remove'); del.textContent = '\u00D7';
             del.addEventListener('click', function (e) {
@@ -449,8 +563,9 @@
 
     /* ---------- Dragging ---------- */
     function enableDrag(el, it) {
+        
         el.addEventListener('pointerdown', function (e) {
-            if (e.target.closest('.del, .pic')) 
+            if (e.target.closest('.del, .pic, .rs')) 
             return;
             var startX = e.clientX, startY = e.clientY, ox = it.x, oy = it.y, moved = false;
             el.setPointerCapture(e.pointerId);
@@ -500,11 +615,14 @@
         var q = document.getElementById('search').value.trim().toLowerCase();
         var grid = document.getElementById('stickers'); grid.innerHTML = '';
         STICKERS.filter(function (s) {
-            return (activeCat === 'All' || s.cat === activeCat || s.kind === 'note') &&
+            return (activeCat === 'All' || s.cat === activeCat || s.kind) &&
                    (!q || s.label.toLowerCase().indexOf(q) > -1);
         }).forEach(function (s) {
             var b = document.createElement('button'); b.type = 'button'; b.className = 'sticker';
-            b.innerHTML = '<span class="emoji">' + s.icon + '</span>' + esc(s.label);
+            var thumb = s.src
+                ? '<img src="' + s.src + '" alt="" style="width:44px;height:44px;object-fit:contain">'
+                : '<span class="emoji">' + s.icon + '</span>';
+            b.innerHTML = thumb + esc(s.label);
             b.onclick = function () { addSticker(s); };
             grid.appendChild(b);
         });
@@ -514,8 +632,16 @@
         var x = 120 + Math.round(Math.random() * 360), y = 100 + Math.round(Math.random() * 260);
         var r = Math.round(Math.random() * 10 - 5);
         if (s.kind === 'note') items.push({ id: ++uid, t: 'note', x: x, y: y, r: r, text: 'My goal', color: noteColor });
+        else if (s.kind === 'polaroid') items.push({ id: ++uid, t: 'photo', x: x, y: y, r: r, cap: 'My dream',
+            icon: '\uD83D\uDCF7', bg: Math.floor(Math.random() * 4), w: 150 });
+        else if (s.art) items.push({ 
+            id: ++uid, t: 'art', art: s.art, x: x, y: y, r: 0, w: 300 
+        });
+        else if (s.src) items.push({ 
+            id: ++uid, t: 'img', src: s.src, x: x, y: y, r: r, w: 140 
+        });
         else items.push({ id: ++uid, t: 'emoji', x: x, y: y, r: r, icon: s.icon });
-        render(); 
+        render();
         updateUI();
     }
     document.getElementById('search').addEventListener('input', renderStickers);
@@ -553,7 +679,9 @@
     };
     document.getElementById('clear').onclick = function () {
         if (!items.length) return;
-        if (confirm('Remove everything from your board?')) { commit(); items = []; render(); updateUI(); }
+        if (confirm('Remove everything from your board?')) { commit(); items = []; 
+            render(); 
+            updateUI(); }
     };
     document.getElementById('zoom').addEventListener('input', function (e) {
         scale = e.target.value / 100;
@@ -561,11 +689,6 @@
     });
 
     /* ---------- Header buttons (hooks for your own logic) ---------- */
-    document.getElementById('saveBtn').onclick = function () {
-        // TODO: POST to a Laravel route, e.g. fetch('/vision-board', { method: 'POST', body: JSON.stringify(items), ... })
-        console.log('Board state:', items);
-        alert('Board saved (demo). Connect this button to a Laravel route to store it.');
-    };
     document.getElementById('downloadBtn').onclick = function () {
         var btn = this;
         var oldText = btn.textContent;
