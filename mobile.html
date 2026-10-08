@@ -1,748 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vision Board</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vision Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--maroon:#a3174f;--pink:#e8336d;--ink:#2f3a6b;--muted:#7b7f99;--line:#e6e8f0;--board-bg:#e9c9a0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Poppins',system-ui,sans-serif;color:var(--ink);display:flex;flex-direction:column;height:100dvh;
+ background:radial-gradient(ellipse at 0% 0%,#4355b5 0,transparent 55%),radial-gradient(ellipse at 100% 0%,#f6437f 0,transparent 55%),
+ radial-gradient(ellipse at 0% 100%,#fcc41e 0,transparent 55%),radial-gradient(ellipse at 100% 100%,#30bdd4 0,transparent 55%),#faeee0}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 
-    <style>
-        :root {
-            --maroon: #a3174f;
-            --maroon-dark: #8a1442;
-            --pink: #e8336d;
-            --ink: #2f3a6b;
-            --muted: #7b7f99;
-            --line: #e6e8f0;
-            --white: #fff;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
-        body {
-            font-family: 'Poppins', system-ui, sans-serif;
-            color: var(--ink);
-            display: flex; flex-direction: column;
-            height: 100vh;
-            background:
-                radial-gradient(ellipse at 0% 0%,     #4355b5 0%, transparent 55%),
-                radial-gradient(ellipse at 100% 0%,   #f6437f 0%, transparent 55%),
-                radial-gradient(ellipse at 0% 100%,   #fcc41e 0%, transparent 55%),
-                radial-gradient(ellipse at 100% 100%, #30bdd4 0%, transparent 55%),
-                #faeee0;
-            background-attachment: fixed;
-        }
-        button { font-family: inherit; cursor: pointer; }
-        button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top));background:#fff}
+.top img{display:block;height:28px;width:auto}
+.top .fs{height:40px}
 
-        /* ---------- Top bar ---------- */
-        .topbar {
-            position: sticky; top: 0; z-index: 100;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 24px;
-            background: var(--white);
-        }
-        .topbar .brand { 
-            display: block; line-height: 0; 
-        }
-        .topbar .brand img { 
-            height: 40px; width: auto; display: block; 
-        }
-        .topbar .product { 
-            font-size: 20px; font-weight: 700; 
-        }
-        .topbar .product small { 
-            display: block; font-size: 8px; font-weight: 500; text-align: right; color: #666; 
-        }
+/* board */
+.stagewrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:12px}
+.board{position:relative;overflow:hidden;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.stage{position:absolute;top:0;left:0;width:360px;height:540px;transform-origin:0 0;background-color:var(--board-bg);
+ background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px),radial-gradient(rgba(255,255,255,.25) 1px,transparent 1px);
+ background-size:14px 14px,22px 22px;background-position:0 0,7px 7px}
+.item{position:absolute;user-select:none;-webkit-user-select:none;touch-action:none}
+.item.dragging{z-index:999!important;filter:drop-shadow(0 8px 10px rgba(0,0,0,.25))}
+.item.sel{outline:2px dashed var(--pink);outline-offset:4px}
+.item button{position:absolute;display:none;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3);z-index:2}
+.item.sel button{display:block}
+.del{top:-16px;right:-16px;width:28px;height:28px;background:var(--maroon)!important;color:#fff;font-size:16px;line-height:28px}
+.pic{top:-16px;left:-16px;width:28px;height:28px;background:#fff!important;font-size:13px}
+.rs{right:-14px;bottom:-14px;width:24px;height:24px;background:var(--pink)!important;touch-action:none}
+.polaroid{background:#fff;padding:8px 8px 6px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.photo{display:grid;place-items:center}
+.cap{font-family:'Caveat',cursive;text-align:center;margin-top:4px;color:#3a2d22;outline:none}
+.note{padding:10px;font-family:'Caveat',cursive;line-height:1.1;text-align:center;color:#3a2d22;display:grid;place-items:center;box-shadow:0 4px 8px rgba(0,0,0,.2)}
+.note span,.board-title span{outline:none}
+.board-title{font-family:'Caveat',cursive;font-size:30px;color:#4a3a2a;white-space:nowrap;padding:2px 8px}
+.emoji-item{font-size:44px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.sticker-img{display:block;height:auto;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.2))}
 
-        /* ---------- Sub header ---------- */
-        .subhead {
-            display: flex; align-items: center; gap: 16px;
-            margin: 10px 14px 0; padding: 8px 18px;
-            background: rgba(255, 255, 255, .92); border-radius: 12px;
-        }
-        .subhead .logo { font-weight: 800; line-height: .9; color: var(--maroon); font-size: 20px; }
-        .subhead .logo b { display: block; color: #e0a526; font-size: 18px; letter-spacing: 1px; }
-        .subhead .logo b i { color: #4fd1b5; font-style: normal; }
-        .subhead .divider { width: 1px; height: 36px; background: var(--line); }
-        .subhead h1 { font-size: 20px; letter-spacing: .5px; }
-        .subhead p { font-size: 11px; color: var(--muted); }
-        .subhead .actions { margin-left: auto; display: flex; gap: 8px; }
-        .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 9px 18px; border-radius: 999px; font-size: 12px; font-weight: 600;
-            border: 1px solid var(--line); background: var(--white); color: var(--ink);
-        }
-        .btn:hover { background: #f3f3fa; }
-        .btn.primary { background: var(--pink); border-color: var(--pink); color: #fff; }
-        .btn.primary:hover { background: #d12a5f; }
+/* dock */
+.dock{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:0 12px;margin-bottom:calc(12px + env(safe-area-inset-bottom));
+ padding:8px 10px;background:#fff;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.dock .t{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;padding:4px 6px;font-size:10px;font-weight:600;color:var(--muted)}
+.dock .t i{font-style:normal;font-size:18px;line-height:1.2;color:var(--ink)}
+.dock .t:disabled{opacity:.3}
+.dock .add{width:56px;height:56px;margin-top:-22px;border-radius:50%;background:var(--pink);color:#fff;font-size:30px;font-weight:500;box-shadow:0 6px 14px rgba(232,51,109,.5)}
 
-        /* ---------- Workspace ---------- */
-        .workspace {
-            flex: 1; min-height: 0;
-            display: grid; grid-template-columns: 300px 1fr 230px; gap: 12px;
-            padding: 10px 14px;
-        }
-        .panel {
-            background: var(--white); border-radius: 12px; padding: 14px;
-            display: flex; flex-direction: column; min-height: 0;
-        }
-        .panel h2 { font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 10px; letter-spacing: .5px; }
-
-        /* Stickers panel */
-        .search {
-            width: 100%; padding: 8px 12px; margin-bottom: 10px;
-            border: 1px solid var(--line); border-radius: 8px; font: 12px 'Poppins', sans-serif;
-        }
-        .layout-split { display: flex; gap: 8px; min-height: 0; flex: 1; }
-        .cats { display: flex; flex-direction: column; gap: 4px; width: 62px; overflow-y: auto; }
-        .cats button {
-            border: 0; background: #f3f3fa; border-radius: 8px; padding: 6px 4px;
-            font-size: 10px; font-weight: 600; color: var(--ink);
-        }
-        .cats button.active { background: var(--maroon); color: #fff; }
-        .sticker-grid {
-            flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 8px; align-content: start;
-        }
-        .sticker {
-            border: 1px solid var(--line); background: #fff; border-radius: 10px;
-            padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            font-size: 9.5px; font-weight: 600; text-align: center; color: var(--ink);
-        }
-        .sticker .emoji { font-size: 28px; line-height: 1; }
-        .sticker:hover { border-color: var(--pink); background: #fff5f9; }
-
-        /* Board */
-        .board-wrap { position: relative; padding: 0; overflow: hidden; }
-        .board {
-            flex: 1; position: relative; overflow: auto; border-radius: 12px 12px 0 0;
-            background-color: var(--board-bg, #e9c9a0);
-            background-image:
-                radial-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px),
-                radial-gradient(rgba(255, 255, 255, .25) 1px, transparent 1px);
-            background-size: 14px 14px, 22px 22px;
-            background-position: 0 0, 7px 7px;
-        }
-        .stage { position: relative; width: 1140px; height: 780px; transform-origin: 0 0; }
-        .board-title {
-        font-family: 'Caveat', cursive; font-size: 30px; color: #4a3a2a;
-        white-space: nowrap; padding: 2px 8px;
-        }
-        .board-title span { outline: none; }
-        .item { position: absolute; cursor: grab; user-select: none; touch-action: none; }
-        .item.dragging { cursor: grabbing; z-index: 50 !important; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .25)); }
-        .item .del {
-            position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 50%;
-            border: 0; background: var(--maroon); color: #fff; font-size: 12px; line-height: 20px; display: none;
-        }
-        .item:hover .del, .item:focus-within .del { 
-            display: block; 
-        }
-        .item .pic {
-        position: absolute; top: -8px; left: -8px; width: 24px; height: 24px;
-        border-radius: 50%; border: 0; background: #fff; font-size: 12px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, .3); display: none;
-        }
-        .item .rs {
-            position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px;
-            border-radius: 50%; border: 0; background: var(--pink);
-            box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: nwse-resize;
-            display: none; touch-action: none;
-        }
-        .item:hover .rs, .item:focus-within .rs { 
-            display: block; 
-        }
-        .item:hover .pic, .item:focus-within .pic { display: block; }
-        .polaroid {
-            width: 150px; background: #fff; padding: 8px 8px 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
-        }
-        .polaroid .photo {
-            height: 100px; display: grid; place-items: center; font-size: 44px;
-        }
-        .polaroid .cap {
-            font-family: 'Caveat', cursive; font-size: 17px; text-align: center; margin-top: 4px; outline: none; color: #3a2d22;
-        }
-        .note {
-            width: 120px; min-height: 80px; padding: 12px 10px;
-            font-family: 'Caveat', cursive; font-size: 19px; line-height: 1.1; text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, .2); color: #3a2d22; display: grid; place-items: center;
-        }
-        .note span { outline: none; }
-        .emoji-item { 
-            font-size: 44px; 
-            filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); 
-        }
-        .sticker-img { 
-            display: block; height: auto; 
-            pointer-events: none; 
-            filter: drop-shadow(0 3px 3px rgba(0,0,0,.2)); 
-        }
-
-        .toolbar {
-            display: flex; align-items: center; gap: 12px; padding: 8px 14px;
-            background: var(--white); border-top: 1px solid var(--line); border-radius: 0 0 12px 12px;
-        }
-        .toolbar button.tool {
-            border: 0; background: transparent; font-size: 14px; color: var(--muted); padding: 4px 8px;
-        }
-        .toolbar button.tool:disabled { opacity: .35; cursor: default; }
-        .toolbar input[type=range] { width: 150px; accent-color: var(--pink); }
-        .toolbar .spacer { flex: 1; }
-        .toolbar .clear { font-size: 11px; font-weight: 600; color: var(--maroon); }
-
-        /* Right column */
-        .right { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
-        .my-board-item {
-            display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px;
-            background: #f3f3fa; font-size: 11px; font-weight: 600;
-        }
-        .my-board-item .thumb { width: 28px; height: 28px; border-radius: 6px; background: var(--board-bg, #e9c9a0); }
-        .my-board-item small { display: block; font-weight: 400; color: var(--muted); font-size: 9px; }
-        .swatch-label { font-size: 10px; font-weight: 600; margin: 10px 0 6px; color: var(--muted); }
-        .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
-        .swatches button {
-            width: 24px; height: 24px; border-radius: 6px; border: 2px solid #fff;
-            box-shadow: 0 0 0 1px var(--line);
-        }
-        .swatches button.active { box-shadow: 0 0 0 2px var(--maroon); }
-        .promo {
-            flex: 1; border-radius: 12px; padding: 16px; text-align: center; font-size: 12px; line-height: 1.4;
-            background: linear-gradient(135deg, #fff 0%, #ffe3f0 60%, #ff9ec4 100%);
-            display: flex; flex-direction: column; justify-content: center; gap: 8px;
-        }
-        .promo strong { font-size: 14px; color: var(--ink); }
-        .promo .logo { font-weight: 800; color: var(--maroon); line-height: .9; }
-        .promo .logo b { display: block; color: #e0a526; letter-spacing: 1px; }
-
-        /* Footer */
-        .footer {
-            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
-            background: var(--maroon-dark); color: #f6dbe6; font-size: 9px; line-height: 1.5; padding: 8px 24px;
-        }
-        .footer p:last-child { text-align: right; }
-
-        @media (max-width: 960px) {
-            body { height: auto; }
-            .workspace { grid-template-columns: 1fr; }
-            .board-wrap { height: 560px; }
-            .sticker-grid { grid-template-columns: repeat(3, 1fr); }
-            .layout-split { max-height: 260px; }
-            .subhead { flex-wrap: wrap; }
-        }
-
-        /* fs logo */
-        .fs-logo { height: 64px; width: auto; display: block; }
-        .promo .promo-logo { height: auto; width: 150px; margin: 0 auto; }
-    </style>
+/* sheets */
+.back{position:fixed;inset:0;background:rgba(20,24,50,.4);opacity:0;pointer-events:none;transition:opacity .2s;z-index:200}
+.back.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:62dvh;display:flex;flex-direction:column;background:#fff;border-radius:20px 20px 0 0;
+ padding:10px 16px calc(16px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease;z-index:210}
+.sheet.on{transform:none}
+.grip{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet h2{font-size:15px;font-weight:700;margin-bottom:10px}
+.search{width:100%;padding:10px 14px;margin-bottom:10px;border:1px solid var(--line);border-radius:999px;font:14px 'Poppins',sans-serif;color:var(--ink)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;flex-shrink:0}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex-shrink:0;padding:6px 14px;border-radius:999px;background:#f3f3fa;font-size:12px;font-weight:600}
+.chips button.active{background:var(--maroon);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;overflow-y:auto;align-content:start}
+.sticker{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1px solid var(--line);border-radius:12px;font-size:11px;font-weight:500;text-align:center}
+.sticker:active{border-color:var(--pink);background:#fff5f9}
+.sticker .emoji{font-size:30px;line-height:1}
+.sticker img{width:40px;height:40px;object-fit:contain}
+.lbl{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 8px}
+.lbl:first-of-type{margin-top:0}
+.swatches{display:flex;gap:12px}
+.swatches button{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.swatches button.active{box-shadow:0 0 0 3px var(--maroon)}
+.rows{margin-top:18px;border-top:1px solid var(--line)}
+.rows button{display:block;width:100%;text-align:left;padding:14px 0;font-size:14px;font-weight:600;border-bottom:1px solid var(--line)}
+.rows .danger{color:var(--maroon)}
+.rows p{display:none;padding:10px 0;font-size:11px;line-height:1.5;color:var(--muted)}
+.rows p.on{display:block}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:8px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:300}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.sheet,.back{transition:none}}
+</style>
 </head>
 <body>
 
-    <header class="topbar">
-        <a href="/" class="brand">
-            <img src="bpi_logo.png" alt="BPI">
-        </a>
-        <div class="product">e-Invest<small>by BPI Wealth</small></div>
-    </header>
+<header class="top">
+  <img src="bpi_logo.png" alt="BPI">
+  <img class="fs" src="fs-logo-nbg.png" alt="Future Starter">
+</header>
 
-    <section class="subhead">
-        <img src="fs-logo-nbg.png" alt="Future Starter" class="fs-logo">
-        <div class="divider"></div>
-        <div>
-            <h1>VISION BOARD</h1>
-            <p>Visualize today. Manifest tomorrow.</p>
-        </div>
-        <div class="actions">
-            <button class="btn" type="button" id="howBtn">How It Works</button>
-            
-            <button class="btn primary" type="button" id="downloadBtn">Download</button>
-        </div>
-    </section>
+<main class="stagewrap" id="wrap">
+  <div class="board" id="board"><div class="stage" id="stage"></div></div>
+</main>
 
-    <main class="workspace">
-        <!-- Stickers -->
-        <aside class="panel">
-            <h2>CHOOSE STICKERS</h2>
-            <input class="search" id="search" type="search" placeholder="Search stickers..." aria-label="Search stickers">
-            <div class="layout-split">
-                <div class="cats" id="cats"></div>
-                <div class="sticker-grid" id="stickers"></div>
-            </div>
-        </aside>
+<nav class="dock" aria-label="Board tools">
+  <button class="t" id="undo"><i>&#8630;</i>Undo</button>
+  <button class="t" id="redo"><i>&#8631;</i>Redo</button>
+  <button class="add" id="addBtn" aria-label="Add stickers">+</button>
+  <button class="t" id="styleBtn"><i>&#127912;</i>Style</button>
+  <button class="t" id="saveBtn"><i>&#11015;&#65039;</i>Save</button>
+</nav>
 
-        <!-- Board -->
-        <section class="panel board-wrap">
-            <div class="board" id="board">
-                <div class="stage" id="stage">
-    
-                </div>
-            </div>
-            <div class="toolbar">
-                <button class="tool" id="undo" title="Undo" aria-label="Undo">&#8630;</button>
-                <button class="tool" id="redo" title="Redo" aria-label="Redo">&#8631;</button>
-                <span aria-hidden="true">&#128269;</span>
-                <input type="range" id="zoom" min="60" max="140" value="100" aria-label="Zoom">
-                <span class="spacer"></span>
-                <button class="tool clear" id="clear">Clear Board</button>
-            </div>
-        </section>
+<div class="back" id="back"></div>
 
-        <!-- Right column -->
-        <aside class="right">
-            <div class="panel">
-                <h2>MY BOARD</h2>
-                <div class="my-board-item">
-                    <div class="thumb"></div>
-                    <div>My Future, My Way<small id="countLabel">0 items</small></div>
-                </div>
-                <h2 style="margin-top:16px">CUSTOMIZE BOARD</h2>
-                <div class="swatch-label">Background</div>
-                <div class="swatches" id="bgSwatches"></div>
-                <div class="swatch-label">Note Color</div>
-                <div class="swatches" id="noteSwatches"></div>
-            </div>
-            <div class="promo">
-                <strong>You dream it.<br>You plan it.<br>You Future Starter it.</strong>
-                <span>Take the first step today for the future you deserve.</span>
-                <img src="fs-logo-nbg.png" alt="Future Starter" class="fs-logo promo-logo">
-            </div>
-        </aside>
-    </main>
+<section class="sheet" id="addSheet" aria-label="Add stickers">
+  <div class="grip"></div>
+  <input class="search" id="search" type="search" placeholder="Search stickers" aria-label="Search stickers">
+  <div class="chips" id="cats"></div>
+  <div class="grid" id="stickers"></div>
+</section>
 
-    <footer class="footer">
-        <p>Mutual funds are not deposits and are not insured by the PDIC.<br>Returns of mutual funds are not guaranteed.</p>
-        <p>Learn more about the product features, risks, and our fees at www.bpi.com.ph<br>BPI Wealth is regulated by the Bangko Sentral ng Pilipinas.</p>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<section class="sheet" id="styleSheet" aria-label="Style">
+  <div class="grip"></div>
+  <h2>Style your board</h2>
+  <div class="lbl">Background</div>
+  <div class="swatches" id="bgSwatches"></div>
+  <div class="lbl">Note color</div>
+  <div class="swatches" id="noteSwatches"></div>
+  <div class="rows">
+    <button id="how">How it works</button>
+    <p id="howText">Tap + to add stickers. Drag to move. Tap an item to select it, then drag the pink dot to resize. Tap selected text to edit.</p>
+    <button class="danger" id="clear">Clear board</button>
+    <button id="legalBtn">Disclosures</button>
+    <p id="legal">Mutual funds are not deposits and are not insured by the PDIC. Returns of mutual funds are not guaranteed. Learn more about the product features, risks, and our fees at www.bpi.com.ph. BPI Wealth is regulated by the Bangko Sentral ng Pilipinas.</p>
+  </div>
+</section>
 
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-
 (function () {
-    var STICKER_DIR = 'images/stickers/';
+  var DIR = 'images/stickers/', SW = 360, SH = 540;
+  var STICKERS = [
+    {label:'Add Note',icon:'\uD83D\uDCDD',cat:'All',kind:'note'},
+    {label:'Add Polaroid',icon:'\uD83D\uDCF8',cat:'All',kind:'polaroid'},
+    {label:'Career Growth',icon:'\uD83C\uDFC6',cat:'Career'},
+    {label:'Financial Freedom',icon:'\uD83D\uDCB5',cat:'Wealth'},
+    {label:'Business Success',icon:'\uD83D\uDCBC',cat:'Business'},
+    {label:'Dream Home',icon:'\uD83C\uDFE0',cat:'Home'},
+    {label:'Travel the World',icon:'\u2708\uFE0F',cat:'Travel'},
+    {label:'Luxury Lifestyle',icon:'\uD83D\uDC5C',cat:'Lifestyle'},
+    {label:'Healthy Body',icon:'\uD83C\uDF4E',cat:'Health'},
+    {label:'Passive Income',icon:'\uD83E\uDEB4',cat:'Wealth'},
+    {label:'Education',icon:'\uD83C\uDF93',cat:'Education'},
+    {label:'Health & Wellness',icon:'\u2764\uFE0F',cat:'Health'},
+    {label:'Family',icon:'\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67',cat:'Family'},
+    {label:'Giving Back',icon:'\uD83E\uDD32',cat:'Giving'},
+    {label:'Star',icon:'\u2B50',cat:'Others'},{label:'Sparkles',icon:'\u2728',cat:'Others'},
+    {label:'Rainbow',icon:'\uD83C\uDF08',cat:'Others'},{label:'Butterfly',icon:'\uD83E\uDD8B',cat:'Others'},
+    {label:'Flower',icon:'\uD83C\uDF38',cat:'Others'},{label:'Sunshine',icon:'\u2600\uFE0F',cat:'Others'},
+    {label:'Sparkle Heart',icon:'\uD83D\uDC96',cat:'Others'},{label:'Balloon',icon:'\uD83C\uDF88',cat:'Others'},
+    {label:'Crown',icon:'\uD83D\uDC51',cat:'Others'},{label:'Palm Tree',icon:'\uD83C\uDF34',cat:'Others'},
+    {label:'Rocket',icon:'\uD83D\uDE80',cat:'Others'},{label:'Pushpin',icon:'\uD83D\uDCCC',cat:'Others'},
+    {label:'Moon',icon:'\uD83C\uDF19',cat:'Others'},{label:'Gem',icon:'\uD83D\uDC8E',cat:'Others'},
+    {label:'Confetti',icon:'\uD83C\uDF89',cat:'Others'},{label:'Lucky Clover',icon:'\uD83C\uDF40',cat:'Others'},
+    {label:'Target',icon:'\uD83C\uDFAF',cat:'Others'},
+    {label:'String',icon:'\uD83E\uDEA2',cat:'Others',art:'rope'},
+    {label:'Shopping',src:DIR+'bags_nbg.png',cat:'Others'},
+    {label:'Graduation',src:DIR+'cap_dip-nbg.png',cat:'Others'},
+    {label:'Car Keys',src:DIR+'car_key-nbg.png',cat:'Others'},
+    {label:'Home Keys',src:DIR+'home_key-nbg.png',cat:'Others'},
+    {label:'Moneyfesting',src:DIR+'moneyfesting-nbg.png',cat:'Others'},
+    {label:'Passport',src:DIR+'passport-nbg.png',cat:'Others'}
+  ];
+  var CATS = ['All','Wealth','Career','Business','Home','Travel','Education','Health','Lifestyle','Family','Giving','Others'];
+  var BGS = ['#e9c9a0','#f3e7d3','#f9d5e5','#cfe3f7','#d7ecd9','#2f3a6b'];
+  var NOTES = ['#fff1a8','#ffd1e3','#cfe8ff','#d6f5d6','#e6d5ff'];
+  var PBG = ['linear-gradient(135deg,#7fb8e6,#e8d9b0)','linear-gradient(135deg,#2f4a7a,#f0a35e)','linear-gradient(135deg,#8fd3c9,#f6e7a8)','linear-gradient(135deg,#f6b6c8,#c9a6e8)'];
+  var ROPE = '<svg viewBox="0 0 300 60" style="width:100%;display:block;overflow:visible"><path d="M6 8 Q150 72 294 8" fill="none" stroke="#8b6b4a" stroke-width="4" stroke-linecap="round"/><path d="M6 8 Q150 72 294 8" fill="none" stroke="#d9bd94" stroke-width="4" stroke-dasharray="3 5"/><circle cx="6" cy="8" r="5" fill="#5a4630"/><circle cx="294" cy="8" r="5" fill="#5a4630"/></svg>';
 
-    var STICKERS = [
-        { id: 'note',    label: 'Add Note',          icon: '\uD83D\uDCDD', cat: 'All', kind: 'note' },
-        { id: 'polaroid', label: 'Add Polaroid', icon: '\uD83D\uDCF8', cat: 'All', kind: 'polaroid' },
-        { id: 'career',  label: 'Career Growth',     icon: '\uD83C\uDFC6', cat: 'Career' },
-        { id: 'free',    label: 'Financial Freedom', icon: '\uD83D\uDCB5', cat: 'Wealth' },
-        { id: 'biz',     label: 'Business Success',  icon: '\uD83D\uDCBC', cat: 'Business' },
-        { id: 'home',    label: 'Dream Home',        icon: '\uD83C\uDFE0', cat: 'Home' },
-        { id: 'travel',  label: 'Travel the World',  icon: '\u2708\uFE0F', cat: 'Travel' },
-        { id: 'luxury',  label: 'Luxury Lifestyle',  icon: '\uD83D\uDC5C', cat: 'Lifestyle' },
-        { id: 'body',    label: 'Healthy Body',      icon: '\uD83C\uDF4E', cat: 'Health' },
-        { id: 'passive', label: 'Passive Income',    icon: '\uD83E\uDEB4', cat: 'Wealth' },
-        { id: 'edu',     label: 'Education',         icon: '\uD83C\uDF93', cat: 'Education' },
-        { id: 'heart',   label: 'Health & Wellness', icon: '\u2764\uFE0F', cat: 'Health' },
-        { id: 'family',  label: 'Family',            icon: '\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67', cat: 'Family' },
-        { id: 'give',    label: 'Giving Back',       icon: '\uD83E\uDD32', cat: 'Giving' },
-        { id: 'star',     label: 'Star',        icon: '\u2B50',             cat: 'Others' },
-        { id: 'sparkle',  label: 'Sparkles',    icon: '\u2728',             cat: 'Others' },
-        { id: 'rainbow',  label: 'Rainbow',     icon: '\uD83C\uDF08',       cat: 'Others' },
-        { id: 'butterfly',label: 'Butterfly',   icon: '\uD83E\uDD8B',       cat: 'Others' },
-        { id: 'flower',   label: 'Flower',      icon: '\uD83C\uDF38',       cat: 'Others' },
-        { id: 'sun',      label: 'Sunshine',    icon: '\u2600\uFE0F',       cat: 'Others' },
-        { id: 'loveheart',label: 'Sparkle Heart', icon: '\uD83D\uDC96',     cat: 'Others' },
-        { id: 'balloon',  label: 'Balloon',     icon: '\uD83C\uDF88',       cat: 'Others' },
-        { id: 'crown',    label: 'Crown',       icon: '\uD83D\uDC51',       cat: 'Others' },
-        { id: 'palm',     label: 'Palm Tree',   icon: '\uD83C\uDF34',       cat: 'Others' },
-        { id: 'rocket',   label: 'Rocket',      icon: '\uD83D\uDE80',       cat: 'Others' },
-        { id: 'pin',      label: 'Pushpin',     icon: '\uD83D\uDCCC',       cat: 'Others' },
-        { id: 'moon',     label: 'Moon',        icon: '\uD83C\uDF19',       cat: 'Others' },
-        { id: 'gem',      label: 'Gem',         icon: '\uD83D\uDC8E',       cat: 'Others' },
-        { id: 'party',    label: 'Confetti',    icon: '\uD83C\uDF89',       cat: 'Others' },
-        { id: 'clover',   label: 'Lucky Clover',icon: '\uD83C\uDF40',       cat: 'Others' },
-        { id: 'target',   label: 'Target',      icon: '\uD83C\uDFAF',       cat: 'Others' },
-        { id: 'rope', label: 'String', icon: '\uD83E\uDEA2', cat: 'Others', art: 'rope' },
-        { id: 'bags',     label: 'Shopping',      src: STICKER_DIR + 'bags_nbg.png',        cat: 'Others' },
-        { id: 'grad',     label: 'Graduation',    src: STICKER_DIR + 'cap_dip-nbg.png',     cat: 'Others' },
-        { id: 'carkey',   label: 'Car Keys',      src: STICKER_DIR + 'car_key-nbg.png',     cat: 'Others' },
-        { id: 'homekey',  label: 'Home Keys',     src: STICKER_DIR + 'home_key-nbg.png',    cat: 'Others' },
-        { id: 'moneyfest',label: 'Moneyfesting',  src: STICKER_DIR + 'moneyfesting-nbg.png',cat: 'Others' },
-        { id: 'passport', label: 'Passport',      src: STICKER_DIR + 'passport-nbg.png',    cat: 'Others' }
-    ];
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('stage'), board = $('board'), wrap = $('wrap');
+  var noteColor = NOTES[0], scale = 1, uid = 0, selId = null, pickTarget = null;
+  var history = [], future = [];
 
-    var CATS = ['All', 'Wealth', 'Career', 'Business', 'Home', 'Travel', 'Education', 'Health', 'Lifestyle', 'Family', 'Giving', 'Others'];
-    var BGS = ['#e9c9a0', '#f3e7d3', '#f9d5e5', '#cfe3f7', '#d7ecd9', '#2f3a6b'];
-    var NOTE_COLORS = ['#fff1a8', '#ffd1e3', '#cfe8ff', '#d6f5d6', '#e6d5ff'];
-    var PHOTO_BG = ['linear-gradient(135deg,#7fb8e6,#e8d9b0)', 'linear-gradient(135deg,#2f4a7a,#f0a35e)',
-                    'linear-gradient(135deg,#8fd3c9,#f6e7a8)', 'linear-gradient(135deg,#f6b6c8,#c9a6e8)'];
-    var ART = {
-        rope: '<svg viewBox="0 0 300 60" style="width:100%;display:block;overflow:visible">' +
-            '<path d="M6 8 Q150 72 294 8" fill="none" stroke="#8b6b4a" stroke-width="4" stroke-linecap="round"/>' +
-            '<path d="M6 8 Q150 72 294 8" fill="none" stroke="#d9bd94" stroke-width="4" stroke-dasharray="3 5"/>' +
-            '<circle cx="6" cy="8" r="5" fill="#5a4630"/><circle cx="294" cy="8" r="5" fill="#5a4630"/></svg>'
-    };
-    var board = document.getElementById('board');
-    var stage = document.getElementById('stage');
-    var noteColor = NOTE_COLORS[0];
-    var scale = 1;
-    var items = [];
-    
-    var history = [];
-    var future = [];
-    var uid = 0;
+  var items = [
+    {id:++uid,t:'title',x:70,y:6,r:0,text:'My Future. My Way.'},
+    {id:++uid,t:'photo',x:20,y:56,r:-3,w:140,cap:'Dream Home',icon:'\uD83C\uDFE1',bg:0},
+    {id:++uid,t:'photo',x:195,y:70,r:3,w:140,cap:'Financial Freedom',icon:'\uD83C\uDFD9\uFE0F',bg:1},
+    {id:++uid,t:'note',x:18,y:235,r:-4,w:110,text:'Build Generational Wealth',color:'#ffd1e3'},
+    {id:++uid,t:'photo',x:150,y:225,r:2,w:130,cap:'Travel the World',icon:'\uD83C\uDFD6\uFE0F',bg:2},
+    {id:++uid,t:'note',x:262,y:250,r:3,w:90,text:'Build My Business',color:'#d6f5d6'},
+    {id:++uid,t:'photo',x:24,y:380,r:-2,w:130,cap:'Health = Wealth',icon:'\uD83E\uDDD8',bg:2},
+    {id:++uid,t:'photo',x:195,y:385,r:2,w:130,cap:'Give Back',icon:'\uD83E\uDD32',bg:3}
+  ];
 
-        var picker = document.createElement('input');
-    picker.type = 'file'; picker.accept = 'image/*'; picker.hidden = true;
-    document.body.appendChild(picker);
-    var pickTarget = null;
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on');},2000);}
 
-    picker.addEventListener('change', function () {
-        var file = picker.files[0];
-        if (!file || !pickTarget) return;
-        resize(file, 600, function (dataUrl) {
-            commit();
-            pickTarget.img = dataUrl;
-            pickTarget = null;
-            render(); 
-            updateUI();
+  /* fit stage to the available space */
+  function fit() {
+    var w = wrap.clientWidth - 24, h = wrap.clientHeight - 24;
+    scale = Math.min(w / SW, h / SH);
+    board.style.width = SW * scale + 'px'; board.style.height = SH * scale + 'px';
+    stage.style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  /* history */
+  function snap(){return JSON.stringify(items);}
+  function commit(){history.push(snap());if(history.length>50)history.shift();future=[];ui();}
+  function ui(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
+  $('undo').onclick=function(){if(!history.length)return;future.push(snap());items=JSON.parse(history.pop());render();ui();};
+  $('redo').onclick=function(){if(!future.length)return;history.push(snap());items=JSON.parse(future.pop());render();ui();};
+
+  function defW(it){return it.t==='note'?110:it.t==='art'?220:it.t==='img'?100:140;}
+  function size(el, it) {
+    var w = it.w || defW(it), q;
+    if (it.t === 'photo') {
+      q = el.querySelector('.polaroid'); q.style.width = w + 'px';
+      var ph = q.querySelector('.photo');
+      ph.style.height = Math.round((w - 16) * .75) + 'px'; ph.style.fontSize = Math.round(w * .29) + 'px';
+      q.querySelector('.cap').style.fontSize = Math.round(17 * w / 150) + 'px';
+    } else if (it.t === 'note') {
+      q = el.querySelector('.note'); q.style.width = w + 'px';
+      q.style.minHeight = Math.round(w * .67) + 'px'; q.style.fontSize = Math.round(19 * w / 120) + 'px';
+    } else if (it.t === 'art') el.querySelector('.art').style.width = w + 'px';
+    else if (it.t === 'img') el.querySelector('.sticker-img').style.width = w + 'px';
+  }
+
+  function btn(cls, label, txt) {
+    var b = document.createElement('button');
+    b.className = cls; b.type = 'button'; b.setAttribute('aria-label', label); b.innerHTML = txt || '';
+    return b;
+  }
+
+  function render() {
+    Array.prototype.slice.call(stage.querySelectorAll('.item')).forEach(function(n){n.remove();});
+    items.forEach(function (it, i) {
+      var el = document.createElement('div');
+      el.className = 'item' + (it.id === selId ? ' sel' : '');
+      el.style.cssText = 'left:' + it.x + 'px;top:' + it.y + 'px;transform:rotate(' + it.r + 'deg);z-index:' + (i + 1);
+      if (it.t === 'photo') {
+        var bg = it.img ? "background:url('" + it.img + "') center/cover" : 'background:' + PBG[it.bg % 4];
+        el.innerHTML = '<div class="polaroid"><div class="photo" style="' + bg + '">' + (it.img ? '' : it.icon) +
+          '</div><div class="cap" contenteditable="false" spellcheck="false">' + esc(it.cap) + '</div></div>';
+      } else if (it.t === 'note') {
+        el.innerHTML = '<div class="note" style="background:' + it.color + '"><span contenteditable="false" spellcheck="false">' + esc(it.text) + '</span></div>';
+      } else if (it.t === 'title') {
+        el.innerHTML = '<div class="board-title"><span contenteditable="false" spellcheck="false">' + esc(it.text) + '</span></div>';
+      } else if (it.t === 'art') el.innerHTML = '<div class="art">' + ROPE + '</div>';
+      else if (it.t === 'img') el.innerHTML = '<img class="sticker-img" src="' + esc(it.src) + '" alt="" draggable="false">';
+      else el.innerHTML = '<div class="emoji-item">' + it.icon + '</div>';
+      size(el, it);
+
+      if (it.t !== 'title' && it.t !== 'emoji') {
+        var rs = btn('rs', 'Resize');
+        rs.addEventListener('pointerdown', function (e) {
+          e.stopPropagation(); e.preventDefault(); rs.setPointerCapture(e.pointerId);
+          var sx = e.clientX, sw = it.w || defW(it), before = snap(), ch = false;
+          function mv(ev){var w=Math.max(70,Math.min(320,Math.round(sw+(ev.clientX-sx)/scale)));if(w!==it.w){it.w=w;ch=true;size(el,it);}}
+          function up(){rs.removeEventListener('pointermove',mv);rs.removeEventListener('pointerup',up);
+            if(ch){history.push(before);future=[];ui();}}
+          rs.addEventListener('pointermove', mv); rs.addEventListener('pointerup', up);
         });
-        picker.value = '';
+        el.appendChild(rs);
+      }
+      var del = btn('del', 'Remove', '\u00D7');
+      del.addEventListener('click', function (e) {
+        e.stopPropagation(); commit(); items = items.filter(function(x){return x.id!==it.id;}); selId = null; render();
+      });
+      el.appendChild(del);
+      if (it.t === 'photo') {
+        var pic = btn('pic', 'Change photo', '\uD83D\uDCF7');
+        pic.addEventListener('click', function(e){e.stopPropagation();pickTarget=it;picker.click();});
+        el.appendChild(pic);
+      }
+      drag(el, it);
+      stage.appendChild(el);
     });
+  }
 
-    function resize(file, max, done) {
-        var img = new Image(), url = URL.createObjectURL(file);
-        img.onload = function () {
-            var s = Math.min(1, max / Math.max(img.width, img.height));
-            var c = document.createElement('canvas');
-            c.width = img.width * s; c.height = img.height * s;
-            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-            URL.revokeObjectURL(url);
-            done(c.toDataURL('image/jpeg', 0.85));
-        };
-        img.src = url;
-    }
-
-    /* ---------- Starting layout (like the sample) ---------- */
-    items = [
-        { id: ++uid, t: 'photo', x: 40,  y: 60,  r: -3, cap: 'Dream Home',        icon: '\uD83C\uDFE1', bg: 0 },
-        { id: ++uid, t: 'photo', x: 300, y: 50,  r: 2,  cap: 'Financial Freedom', icon: '\uD83C\uDFD9\uFE0F', bg: 1 },
-        { id: ++uid, t: 'photo', x: 560, y: 60,  r: 3,  cap: 'Career Growth',     icon: '\uD83D\uDC69\u200D\uD83D\uDCBC', bg: 3 },
-        { id: ++uid, t: 'photo', x: 40,  y: 270, r: 2,  cap: 'Travel the World',  icon: '\uD83C\uDFD6\uFE0F', bg: 2 },
-        { id: ++uid, t: 'note',  x: 215, y: 215, r: -4, text: 'Build Generational Wealth', color: '#ffd1e3' },
-        { id: ++uid, t: 'note',  x: 440, y: 255, r: 3,  text: 'Build My Business', color: '#d6f5d6' },
-        { id: ++uid, t: 'photo', x: 300, y: 330, r: -2, cap: 'Health = Wealth',   icon: '\uD83E\uDDD8', bg: 2 },
-        { id: ++uid, t: 'photo', x: 560, y: 300, r: 2,  cap: 'Give Back',         icon: '\uD83E\uDD32', bg: 3 },
-        { id: ++uid, t: 'title', x: 230, y: 8, r: 0, text: 'My Future. My Way.' },
-    ];
-
-    function snapshot() { return JSON.stringify(items); }
-    function commit() {
-        history.push(snapshot());
-        if (history.length > 50) history.shift();
-        future = [];
-        updateUI();
-    }
-    function restore(json) { items = JSON.parse(json); render(); updateUI(); }
-
-    function applySize(el, it) {
-        var w = it.w || (it.t === 'note' ? 120 : 150);
-        if (it.t === 'photo') {
-            var p = el.querySelector('.polaroid');
-            p.style.width = w + 'px';
-            var ph = p.querySelector('.photo');
-            ph.style.height = Math.round((w - 16) * 0.75) + 'px';
-            ph.style.fontSize = Math.round(w * 0.29) + 'px';
-            p.querySelector('.cap').style.fontSize = Math.round(17 * w / 150) + 'px';
-        } else if (it.t === 'note') {
-            var n = el.querySelector('.note');
-            n.style.width = w + 'px';
-            n.style.minHeight = Math.round(w * 0.67) + 'px';
-            n.style.fontSize = Math.round(19 * w / 120) + 'px';
-        } else if (it.t === 'art') {
-            el.querySelector('.art').style.width = w + 'px';
-        } else if (it.t === 'img') {
-            el.querySelector('.sticker-img').style.width = w + 'px';
+  function drag(el, it) {
+    var ed = el.querySelector('[contenteditable]');
+    if (ed) ed.addEventListener('blur', function () {
+      ed.contentEditable = 'false';
+      var v = ed.textContent, k = it.t === 'photo' ? 'cap' : 'text';
+      if (it[k] !== v) { commit(); it[k] = v; }
+    });
+    el.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.del,.pic,.rs')) return;
+      if (ed && ed.isContentEditable) return;
+      var sx = e.clientX, sy = e.clientY, ox = it.x, oy = it.y, moved = false, was = selId === it.id;
+      el.setPointerCapture(e.pointerId);
+      function mv(ev) {
+        var dx = (ev.clientX - sx) / scale, dy = (ev.clientY - sy) / scale;
+        if (!moved && Math.abs(dx) + Math.abs(dy) > 4) { moved = true; el.classList.add('dragging'); }
+        if (!moved) return;
+        it.x = Math.round(ox + dx); it.y = Math.round(oy + dy);
+        el.style.left = it.x + 'px'; el.style.top = it.y + 'px';
+      }
+      function up() {
+        el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up);
+        el.classList.remove('dragging');
+        if (moved) {
+          var p = JSON.parse(snap());
+          p.forEach(function(q){if(q.id===it.id){q.x=ox;q.y=oy;}});
+          history.push(JSON.stringify(p)); future = []; ui();
         }
-        
-    }
-    /* ---------- Render ---------- */
-    function render() {
-        Array.prototype.slice.call(stage.querySelectorAll('.item')).forEach(function (n) { n.remove(); });
-        items.forEach(function (it, i) {
-            var el = document.createElement('div');
-            el.className = 'item';
-            el.dataset.id = it.id;
-            el.style.left = it.x + 'px';
-            el.style.top = it.y + 'px';
-            el.style.transform = 'rotate(' + it.r + 'deg)';
-            el.style.zIndex = i + 1;
-
-            if (it.t === 'photo') {
-                var bgStyle = it.img
-                    ? "background:url('" + it.img + "') center/cover"
-                    : 'background:' + PHOTO_BG[it.bg % PHOTO_BG.length];
-                el.innerHTML = '<div class="polaroid"><div class="photo" style="' + bgStyle + '">' +
-                    (it.img ? '' : it.icon) + '</div><div class="cap" contenteditable="true" spellcheck="false">' +
-                    esc(it.cap) + '</div></div>';
-            } else if (it.t === 'note') {
-                el.innerHTML = '<div class="note" style="background:' + it.color + '"><span contenteditable="true" spellcheck="false">' + esc(it.text) + '</span></div>';
-            }  else if (it.t === 'title') {
-                el.innerHTML = '<div class="board-title"><span contenteditable="true" spellcheck="false">' + esc(it.text) + '</span></div>';
-            }  else if (it.t === 'art') {
-                el.innerHTML = '<div class="art">' + ART[it.art] + '</div>';
-            }
-            else if (it.t === 'img') {
-                el.innerHTML = '<img class="sticker-img" src="' + esc(it.src) + '" alt="" draggable="false">';
-            }
-            else {
-                el.innerHTML = '<div class="emoji-item">' + it.icon + '</div>';
-            }
-            applySize(el, it);   
-
-            if (it.t === 'photo' || it.t === 'note' || it.t === 'art' || it.t === 'img') {
-                var rs = document.createElement('button');
-                rs.className = 'rs'; rs.type = 'button'; rs.title = 'Drag to resize';
-                rs.setAttribute('aria-label', 'Resize');
-                rs.addEventListener('pointerdown', function (e) {
-                    e.stopPropagation(); e.preventDefault();
-                    rs.setPointerCapture(e.pointerId);
-                    var startX = e.clientX, startW = it.w || (it.t === 'note' ? 120 : 150);
-                    var before = snapshot(), changed = false;
-                    function move(ev) {
-                        var w = Math.max(70, Math.min(500, Math.round(startW + (ev.clientX - startX) / scale)));
-                        if (w !== it.w) { it.w = w; changed = true; applySize(el, it); }
-                    }
-                    function up() {
-                        rs.removeEventListener('pointermove', move);
-                        rs.removeEventListener('pointerup', up);
-                        if (changed) { history.push(before); if (history.length > 50) history.shift(); future = []; updateUI(); }
-                    }
-                    rs.addEventListener('pointermove', move);
-                    rs.addEventListener('pointerup', up);
-                });
-                el.appendChild(rs);
-            }
-
-            var del = document.createElement('button');
-            del.className = 'del'; del.type = 'button'; del.setAttribute('aria-label', 'Remove'); del.textContent = '\u00D7';
-            del.addEventListener('click', function (e) {
-                e.stopPropagation();
-                commit(); items = items.filter(function (x) { return x.id !== it.id; }); render(); updateUI();
-            });
-            el.appendChild(del);
-
-            if (it.t === 'photo') {
-            var pic = document.createElement('button');
-            pic.className = 'pic'; pic.type = 'button'; pic.title = 'Change photo';
-            pic.setAttribute('aria-label', 'Change photo'); pic.textContent = '\uD83D\uDCF7';
-            pic.addEventListener('click', function (e) {
-                e.stopPropagation(); pickTarget = it; picker.click();
-            });
-            el.appendChild(pic);
-            }
-
-            var editable = el.querySelector('[contenteditable]');
-            if (editable) {
-                editable.contentEditable = 'false';
-
-                el.addEventListener('dblclick', function () {
-                    editable.contentEditable = 'true';
-                    editable.focus();
-                });
-
-                editable.addEventListener('blur', function () {
-                    editable.contentEditable = 'false';
-                    var v = editable.textContent;
-                    if ((it.t === 'photo' ? it.cap : it.text) !== v) {
-                        commit();
-                        if (it.t === 'photo') it.cap = v; else it.text = v;
-                    }
-                });
-
-                editable.addEventListener('pointerdown', function (e) {
-                    if (editable.isContentEditable) e.stopPropagation();
-                });
-            }
-            enableDrag(el, it);
-            stage.appendChild(el);
-        });
-        document.getElementById('countLabel').textContent = items.length + (items.length === 1 ? ' item' : ' items');
-    }
-    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-
-    /* ---------- Dragging ---------- */
-    function enableDrag(el, it) {
-        
-        el.addEventListener('pointerdown', function (e) {
-            if (e.target.closest('.del, .pic, .rs')) 
-            return;
-            var startX = e.clientX, startY = e.clientY, ox = it.x, oy = it.y, moved = false;
-            el.setPointerCapture(e.pointerId);
-            el.classList.add('dragging');
-            // bring to front
-            items = items.filter(function (x) { return x !== it; }); items.push(it);
-            Array.prototype.forEach.call(stage.querySelectorAll('.item'), function (n, i) { n.style.zIndex = i + 1; });
-            el.style.zIndex = 999;
-
-            function move(ev) {
-                var dx = (ev.clientX - startX) / scale, dy = (ev.clientY - startY) / scale;
-                if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-                it.x = Math.round(ox + dx); it.y = Math.round(oy + dy);
-                el.style.left = it.x + 'px'; el.style.top = it.y + 'px';
-            }
-            function up() {
-                el.classList.remove('dragging');
-                el.removeEventListener('pointermove', move);
-                el.removeEventListener('pointerup', up);
-                if (moved) {
-                    var after = snapshot();
-                    items.find(function (x) { return x === it; }).x = it.x;
-                    // push the pre-drag state so undo restores the old position
-                    var prev = JSON.parse(after);
-                    prev.forEach(function (p) { if (p.id === it.id) { p.x = ox; p.y = oy; } });
-                    history.push(JSON.stringify(prev)); future = [];
-                    updateUI();
-                }
-            }
-            el.addEventListener('pointermove', move);
-            el.addEventListener('pointerup', up);
-        });
-    }
-
-    /* ---------- Stickers panel ---------- */
-    var activeCat = 'All';
-    function renderCats() {
-        var wrap = document.getElementById('cats'); wrap.innerHTML = '';
-        CATS.forEach(function (c) {
-            var b = document.createElement('button'); b.type = 'button'; b.textContent = c;
-            if (c === activeCat) b.className = 'active';
-            b.onclick = function () { activeCat = c; renderCats(); renderStickers(); };
-            wrap.appendChild(b);
-        });
-    }
-    function renderStickers() {
-        var q = document.getElementById('search').value.trim().toLowerCase();
-        var grid = document.getElementById('stickers'); grid.innerHTML = '';
-        STICKERS.filter(function (s) {
-            return (activeCat === 'All' || s.cat === activeCat || s.kind) &&
-                   (!q || s.label.toLowerCase().indexOf(q) > -1);
-        }).forEach(function (s) {
-            var b = document.createElement('button'); b.type = 'button'; b.className = 'sticker';
-            var thumb = s.src
-                ? '<img src="' + s.src + '" alt="" style="width:44px;height:44px;object-fit:contain">'
-                : '<span class="emoji">' + s.icon + '</span>';
-            b.innerHTML = thumb + esc(s.label);
-            b.onclick = function () { addSticker(s); };
-            grid.appendChild(b);
-        });
-    }
-    function addSticker(s) {
-        commit();
-        var x = 120 + Math.round(Math.random() * 360), y = 100 + Math.round(Math.random() * 260);
-        var r = Math.round(Math.random() * 10 - 5);
-        if (s.kind === 'note') items.push({ id: ++uid, t: 'note', x: x, y: y, r: r, text: 'My goal', color: noteColor });
-        else if (s.kind === 'polaroid') items.push({ id: ++uid, t: 'photo', x: x, y: y, r: r, cap: 'My dream',
-            icon: '\uD83D\uDCF7', bg: Math.floor(Math.random() * 4), w: 150 });
-        else if (s.art) items.push({ 
-            id: ++uid, t: 'art', art: s.art, x: x, y: y, r: 0, w: 300 
-        });
-        else if (s.src) items.push({ 
-            id: ++uid, t: 'img', src: s.src, x: x, y: y, r: r, w: 140 
-        });
-        else items.push({ id: ++uid, t: 'emoji', x: x, y: y, r: r, icon: s.icon });
-        render();
-        updateUI();
-    }
-    document.getElementById('search').addEventListener('input', renderStickers);
-
-    /* ---------- Customize ---------- */
-    function swatches(id, colors, onPick, initial) {
-        var wrap = document.getElementById(id);
-        colors.forEach(function (c) {
-            var b = document.createElement('button'); b.type = 'button'; b.style.background = c; b.setAttribute('aria-label', c);
-            if (c === initial) b.className = 'active';
-            b.onclick = function () {
-                Array.prototype.forEach.call(wrap.children, function (n) { n.classList.remove('active'); });
-                b.classList.add('active'); onPick(c);
-            };
-            wrap.appendChild(b);
-        });
-    }
-    swatches('bgSwatches', BGS, function (c) { document.documentElement.style.setProperty('--board-bg', c); }, BGS[0]);
-    swatches('noteSwatches', NOTE_COLORS, function (c) { noteColor = c; }, NOTE_COLORS[0]);
-
-    /* ---------- Toolbar ---------- */
-    var undoBtn = document.getElementById('undo'), redoBtn = document.getElementById('redo');
-    function updateUI() {
-        undoBtn.disabled = history.length === 0;
-        redoBtn.disabled = future.length === 0;
-        document.getElementById('countLabel').textContent = items.length + (items.length === 1 ? ' item' : ' items');
-    }
-    undoBtn.onclick = function () {
-        if (!history.length) return;
-        future.push(snapshot()); restore(history.pop());
-    };
-    redoBtn.onclick = function () {
-        if (!future.length) return;
-        history.push(snapshot()); restore(future.pop());
-    };
-    document.getElementById('clear').onclick = function () {
-        if (!items.length) return;
-        if (confirm('Remove everything from your board?')) { commit(); items = []; 
-            render(); 
-            updateUI(); }
-    };
-    document.getElementById('zoom').addEventListener('input', function (e) {
-        scale = e.target.value / 100;
-        stage.style.transform = 'scale(' + scale + ')';
+        if (!moved) {
+          if (was && ed) { ed.contentEditable = 'true'; ed.focus(); return; }
+          selId = it.id; render();
+        }
+      }
+      el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up);
     });
+  }
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.target === stage && selId) { selId = null; render(); }
+  });
 
-    /* ---------- Header buttons (hooks for your own logic) ---------- */
-    document.getElementById('downloadBtn').onclick = function () {
-        var btn = this;
-        var oldText = btn.textContent;
-        btn.disabled = true; btn.textContent = 'Preparing...';
-
-        // html2canvas can't capture a zoomed or scrolled stage correctly,
-        // so reset both temporarily and restore them afterwards
-        var prevTransform = stage.style.transform;
-        var prevLeft = board.scrollLeft, prevTop = board.scrollTop;
-        stage.style.transform = 'none';
-        board.scrollLeft = 0; board.scrollTop = 0;
-
-        var bg = getComputedStyle(document.documentElement).getPropertyValue('--board-bg').trim() || '#e9c9a0';
-        var boardStyle = getComputedStyle(board);
-
-        (document.fonts ? document.fonts.ready : Promise.resolve())
-            .then(function () {
-                return html2canvas(stage, {
-                    backgroundColor: bg,
-                    scale: 2,            // sharper image
-                    useCORS: true,
-                    onclone: function (doc) {
-                        // the dotted texture lives on .board, so copy it onto the stage
-                        var s = doc.getElementById('stage');
-                        s.style.backgroundImage = boardStyle.backgroundImage;
-                        s.style.backgroundSize = boardStyle.backgroundSize;
-                        s.style.backgroundPosition = boardStyle.backgroundPosition;
-                    }
-                });
-            })
-            .then(function (canvas) {
-                var a = document.createElement('a');
-                a.download = 'my-vision-board.png';
-                a.href = canvas.toDataURL('image/png');
-                a.click();
-            })
-            .catch(function (err) {
-                console.error(err);
-                alert('Sorry, the download failed. Please try again.');
-            })
-            .then(function () {
-                stage.style.transform = prevTransform;
-                board.scrollLeft = prevLeft; board.scrollTop = prevTop;
-                btn.disabled = false; btn.textContent = oldText;
-            });
+  /* photo picker */
+  var picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'image/*'; picker.hidden = true; document.body.appendChild(picker);
+  picker.addEventListener('change', function () {
+    var f = picker.files[0]; if (!f || !pickTarget) return;
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function () {
+      var s = Math.min(1, 600 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = img.width * s; c.height = img.height * s;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      commit(); pickTarget.img = c.toDataURL('image/jpeg', .85); pickTarget = null; render();
     };
-    document.getElementById('howBtn').onclick = function () {
-        alert('Pick stickers on the left to add them. Drag items to move them, click text to edit it, and hover an item to remove it.');
-    };
+    img.src = url; picker.value = '';
+  });
 
-    renderCats(); 
-    renderStickers(); 
-    render(); 
-    updateUI();
+  /* sheets */
+  var sheets = ['addSheet', 'styleSheet'];
+  function openSheet(id) {
+    sheets.forEach(function(s){$(s).classList.toggle('on', s === id);});
+    $('back').classList.add('on');
+  }
+  function closeSheets() {
+    sheets.forEach(function(s){$(s).classList.remove('on');}); $('back').classList.remove('on');
+  }
+  $('back').onclick = closeSheets;
+  $('addBtn').onclick = function () { openSheet('addSheet'); };
+  $('styleBtn').onclick = function () { openSheet('styleSheet'); };
+
+  /* sticker sheet */
+  var activeCat = 'All';
+  function renderCats() {
+    var w = $('cats'); w.innerHTML = '';
+    CATS.forEach(function (c) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = c;
+      if (c === activeCat) b.className = 'active';
+      b.onclick = function () { activeCat = c; renderCats(); renderStickers(); };
+      w.appendChild(b);
+    });
+  }
+  function renderStickers() {
+    var q = $('search').value.trim().toLowerCase(), g = $('stickers'); g.innerHTML = '';
+    STICKERS.filter(function (s) {
+      return (activeCat === 'All' || s.cat === activeCat || s.kind) && (!q || s.label.toLowerCase().indexOf(q) > -1);
+    }).forEach(function (s) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'sticker';
+      b.innerHTML = (s.src ? '<img src="' + s.src + '" alt="">' : '<span class="emoji">' + s.icon + '</span>') + esc(s.label);
+      b.onclick = function () { addSticker(s); closeSheets(); };
+      g.appendChild(b);
+    });
+  }
+  $('search').addEventListener('input', renderStickers);
+
+  function addSticker(s) {
+    commit();
+    var x = 60 + Math.round(Math.random() * 140), y = 120 + Math.round(Math.random() * 260);
+    var r = Math.round(Math.random() * 10 - 5), it;
+    if (s.kind === 'note') it = {t:'note',x:x,y:y,r:r,w:110,text:'My goal',color:noteColor};
+    else if (s.kind === 'polaroid') it = {t:'photo',x:x,y:y,r:r,w:130,cap:'My dream',icon:'\uD83D\uDCF7',bg:Math.floor(Math.random()*4)};
+    else if (s.art) it = {t:'art',art:s.art,x:30,y:y,r:0,w:220};
+    else if (s.src) it = {t:'img',src:s.src,x:x,y:y,r:r,w:100};
+    else it = {t:'emoji',x:x,y:y,r:r,icon:s.icon};
+    it.id = ++uid; items.push(it); selId = it.id; render();
+  }
+
+  /* style sheet */
+  function swatches(id, colors, pick, init) {
+    var w = $(id);
+    colors.forEach(function (c) {
+      var b = document.createElement('button'); b.type = 'button'; b.style.background = c; b.setAttribute('aria-label', c);
+      if (c === init) b.className = 'active';
+      b.onclick = function () {
+        Array.prototype.forEach.call(w.children, function(n){n.classList.remove('active');});
+        b.classList.add('active'); pick(c);
+      };
+      w.appendChild(b);
+    });
+  }
+  swatches('bgSwatches', BGS, function(c){document.documentElement.style.setProperty('--board-bg', c);}, BGS[0]);
+  swatches('noteSwatches', NOTES, function(c){noteColor = c;}, NOTES[0]);
+  $('how').onclick = function () { $('howText').classList.toggle('on'); };
+  $('legalBtn').onclick = function () { $('legal').classList.toggle('on'); };
+  $('clear').onclick = function () {
+    if (!items.length) return;
+    if (confirm('Remove everything from your board?')) { commit(); items = []; selId = null; render(); closeSheets(); }
+  };
+
+  /* save as image */
+  $('saveBtn').onclick = function () {
+    var b = this; selId = null; render(); b.disabled = true;
+    var prev = stage.style.transform; stage.style.transform = 'none'; board.style.overflow = 'visible';
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--board-bg').trim();
+    var cs = getComputedStyle(stage);
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+      return html2canvas(stage, {
+        backgroundColor: bg, scale: 3, useCORS: true,
+        onclone: function (d) {
+          var s = d.getElementById('stage');
+          s.style.backgroundImage = cs.backgroundImage; s.style.backgroundSize = cs.backgroundSize; s.style.backgroundPosition = cs.backgroundPosition;
+        }
+      });
+    }).then(function (c) {
+      var a = document.createElement('a'); a.download = 'my-vision-board.png'; a.href = c.toDataURL('image/png'); a.click();
+      toast('Board saved');
+    }).catch(function (e) { console.error(e); toast('Save failed. Try again.'); })
+    .then(function () { stage.style.transform = prev; board.style.overflow = 'hidden'; b.disabled = false; });
+  };
+
+  renderCats(); renderStickers(); fit(); render(); ui();
 })();
 </script>
 </body>
